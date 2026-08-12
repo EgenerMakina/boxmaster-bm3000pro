@@ -208,8 +208,9 @@
 
   /* ================= SLIDE 8 — CONFIGURATOR ================= */
   #configure{background:var(--bg-light);}
-  .cfg-grid{display:grid; grid-template-columns:1fr 1.15fr; gap:36px; margin-top:40px; align-items:start;}
-  @media (max-width:980px){ .cfg-grid{grid-template-columns:1fr;} }
+  .cfg-grid{display:grid; grid-template-columns:0.85fr 1fr 0.9fr; gap:26px; margin-top:40px; align-items:start;}
+  @media (max-width:1200px){ .cfg-grid{grid-template-columns:1fr 1fr;} .pay-panel{grid-column:1 / -1;} }
+  @media (max-width:980px){ .cfg-grid{grid-template-columns:1fr;} .quote-panel,.pay-panel{position:static;} }
   .std-box{background:#fff; border-radius:14px; padding:28px; box-shadow:0 12px 30px -20px rgba(13,31,60,0.25);}
   .std-box h5{font-size:14px; letter-spacing:1.6px; color:var(--navy-deep); text-transform:uppercase; font-weight:700; margin-bottom:4px;}
   .std-box .std-sub{font-size:14px; color:var(--good); font-weight:700; margin-bottom:18px;}
@@ -249,6 +250,39 @@
   .q-actions button{flex:1; padding:10px; border-radius:8px; border:none; font-weight:700; font-size:14.5px; letter-spacing:0.4px; cursor:pointer; text-transform:uppercase;}
   .q-actions .primary{background:var(--orange); color:#fff;}
   .q-actions .secondary{background:rgba(255,255,255,0.08); color:#fff; border:1px solid rgba(255,255,255,0.2) !important;}
+
+  .pay-panel{
+    position:sticky; top:96px; background:var(--navy-mid); border-radius:16px; padding:22px 24px;
+    color:#fff; box-shadow:var(--shadow); border:1.5px solid var(--orange);
+  }
+  .pay-panel h4{font-size:14px; letter-spacing:1.8px; text-transform:uppercase; color:var(--orange); margin:0 0 14px;}
+  .pay-cc-badge{
+    display:inline-flex; align-items:center; gap:6px; background:var(--orange); color:#fff; font-size:12px; font-weight:800;
+    letter-spacing:0.4px; text-transform:uppercase; padding:5px 12px; border-radius:20px; margin-bottom:12px;
+  }
+  .pay-row{display:flex; justify-content:space-between; align-items:flex-start; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.1); gap:10px;}
+  .pay-row:last-of-type{border-bottom:none;}
+  .pay-row .pl-name{font-size:14.5px; color:#D6DEEC; padding-top:2px;}
+  .pay-row .pl-val{display:flex; flex-direction:column; align-items:flex-end; gap:2px;}
+  .pl-eur{font-size:11.5px; color:#95A5C2; font-weight:600;}
+  .pl-try{font-family:var(--serif); font-weight:700; font-size:16.5px; color:#fff;}
+  .pay-row.lg .pl-try{font-size:21px; color:var(--orange);}
+  .pay-field{margin:14px 0;}
+  .pay-field label{display:block; font-size:11px; color:#8FA0BE; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:5px;}
+  .pay-field .hint{display:block; font-size:10.5px; color:#7E90AF; margin-top:5px; font-weight:400; text-transform:none; letter-spacing:0;}
+  .pay-field input, .pay-field select{
+    width:100%; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); border-radius:7px;
+    padding:9px 11px; font-size:14px; color:#fff; font-family:var(--sans);
+  }
+  .pay-field input:focus, .pay-field select:focus{outline:none; border-color:var(--orange);}
+  .pay-cc-note{
+    display:flex; align-items:flex-start; gap:8px; background:rgba(232,130,26,0.14); border:1px solid rgba(232,130,26,0.4);
+    border-radius:8px; padding:10px 12px; font-size:12.5px; color:#FFD9AD; font-weight:600; margin:14px 0; line-height:1.4;
+  }
+  .pay-result{border-radius:10px; padding:14px 16px; margin-top:10px; background:var(--orange);}
+  .pay-result .pr-lbl{font-size:11.5px; letter-spacing:0.5px; text-transform:uppercase; color:#fff; font-weight:700; display:flex; align-items:center; gap:5px;}
+  .pay-result .pr-val{font-family:var(--serif); font-weight:700; font-size:22px; color:#fff; margin-top:3px;}
+  .pay-result.alt{background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2);}
 
   /* ================= SLIDE 9 — INCLUDED / SHIPPING ================= */
   .spare-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:26px;}
@@ -368,6 +402,7 @@
     .qopt-name,.qopt-val{color:#0D1F3C !important;}
     .qopt-check{display:none;}
     .qopt-item:not(.on){display:none;}
+    .pay-panel{display:none !important;}
   }
 </style>
 </head>
@@ -684,6 +719,66 @@
         <button class="secondary" onclick="resetOptions()">Seçimleri Sıfırla</button>
       </div>
     </div>
+
+    <div class="pay-panel">
+      <div class="pay-cc-badge">💳 Taksitler Kredi Kartı ile</div>
+      <h4>Ödeme Planlama</h4>
+
+      <div class="pay-row lg">
+        <span class="pl-name">Toplam Fiyat</span>
+        <span class="pl-val"><span class="pl-eur" id="payTotalEUR">€0</span><span class="pl-try" id="payTotalTRY">₺0</span></span>
+      </div>
+
+      <div class="pay-field">
+        <label>EUR / TRY Kuru<span class="hint">TCMB döviz satış kuru — gerekirse güncelleyin</span></label>
+        <input type="number" id="payFx" value="54.87" step="0.01" min="0" oninput="updatePaymentPlan()">
+      </div>
+
+      <div class="pay-field">
+        <label>Peşinat Oranı (asgari %35)</label>
+        <input type="number" id="payDownPct" value="35" min="35" max="100" step="1" oninput="updatePaymentPlan()">
+      </div>
+
+      <div class="pay-row">
+        <span class="pl-name">Peşinat Tutarı</span>
+        <span class="pl-val"><span class="pl-eur" id="payDownEUR">€0</span><span class="pl-try" id="payDownTRY">₺0</span></span>
+      </div>
+      <div class="pay-row">
+        <span class="pl-name">Kalan Tutar</span>
+        <span class="pl-val"><span class="pl-eur" id="payRemainEUR">€0</span><span class="pl-try" id="payRemainTRY">₺0</span></span>
+      </div>
+
+      <div class="pay-cc-note">💳 Kalan tutar, seçtiğiniz taksit sayısında <strong>kredi kartı</strong> ile tahsil edilir.</div>
+
+      <div class="pay-field">
+        <label>Taksit Sayısı</label>
+        <select id="payInstallCount" onchange="updatePaymentPlan()">
+          <option value="0" selected>0 — Taksitsiz (Banka Havalesi / EFT)</option>
+          <option value="1">1 — Tek Çekim (Kredi Kartı)</option>
+          <option value="2">2 Taksit (Kredi Kartı)</option>
+          <option value="3">3 Taksit (Kredi Kartı)</option>
+          <option value="4">4 Taksit (Kredi Kartı)</option>
+          <option value="5">5 Taksit (Kredi Kartı)</option>
+          <option value="6">6 Taksit (Kredi Kartı)</option>
+          <option value="7">7 Taksit (Kredi Kartı)</option>
+          <option value="8">8 Taksit (Kredi Kartı)</option>
+          <option value="9">9 Taksit (Kredi Kartı)</option>
+          <option value="10">10 Taksit (Kredi Kartı)</option>
+          <option value="11">11 Taksit (Kredi Kartı)</option>
+          <option value="12">12 Taksit (Kredi Kartı)</option>
+        </select>
+        <div class="hint" id="payInstallNote" style="margin-top:6px;">Komisyonsuz — kalan tutar banka havalesi / EFT ile ödenir.</div>
+      </div>
+
+      <div class="pay-result" id="payCardRow" style="display:none;">
+        <div class="pr-lbl">💳 Karttan Çekilecek Toplam Tutar</div>
+        <div class="pr-val" id="payCardTotalTRY">₺0</div>
+      </div>
+      <div class="pay-result alt" id="payMonthlyRow" style="display:none;">
+        <div class="pr-lbl">💳 Aylık Taksit Tutarı</div>
+        <div class="pr-val" id="payMonthlyTRY">₺0</div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -834,27 +929,28 @@
 </div>
 
 <script>
-/* ================= FİYATLANDIRMA MODELİ (kaynak: Box_Master_BoxMaster_Fiyatlandirma_v3_final_TR.xlsx) ================= */
-const RATE = 0.92;        // USD -> EUR kuru
-const MARGIN = 0.20;      // Egener Marjin % — Komisyon_Hesaplaması!G9
-const MACHINE_USD = 70000;
-const INSTALL_EUR = 5000; // sabit kurulum ve eğitim ücreti (sabit EUR, marjlanmaz — ana fiyat tablosuna göre)
-const COMMISSION_EUR = 5000; // sabit distribütörlük ve program ücreti, Makine Baz Fiyatına dahil edilir — ayrı satır olarak gösterilmez
+const BASE_EUR = 85500;      // Box Master BM3000Pro — Makine Baz Fiyatı (FOB Çin)
+const INSTALL_EUR = 5000;    // Kurulum & Eğitim sabit ücreti (EUR)
 
 const OPTIONS = [
-  {id:'cold',    name:'Hat İçi Soğuk Tutkal Ünitesi',            desc:'Standart kutu tipleri için hat içi soğuk tutkal uygulaması', usd:1000,  checked:false},
-  {id:'hotmelt', name:'Hat İçi Sıcak Tutkal (Hot-Melt) Ünitesi',  desc:'Ağır karton için yüksek hızlı sıcak tutkal yapıştırma',       usd:5000,  checked:false},
-  {id:'standalone', name:'Bağımsız Tutkal Ünitesi',               desc:'Hat dışı bitirme için bağımsız tutkallama istasyonu',         usd:1000,  checked:false},
-  {id:'vibknife', name:'Hat İçi Titreşimli Bıçak (2 adet)',       desc:'Özel kutu şekilleri için kavisli / düzensiz kesim hatları',   usd:10000, checked:false},
-  {id:'flexo1',  name:'Flekso Baskı — 1. Renk (300×600mm)',      desc:'Hat içi tek renkli fleksografik baskı istasyonu',             usd:10000, checked:false},
-  {id:'flexo2',  name:'Flekso Baskı — 2. Renk (300×600mm)',      desc:'2 renkli baskı işleri için ikinci hat içi renk istasyonu',    usd:10000, checked:false},
-  {id:'ultralow', name:'Ultra Düşük Kutu Yüksekliği Ünitesi',    desc:'Çok düşük yükseklikli kutu üretimi için özel alt limit ünitesi', usd:2000, checked:false},
-  {id:'crease',  name:'Erkek ve Dişi Oluklama Başlıkları',       desc:'Ağır karton için hassas çift yüzeyli oluklama',               usd:5000,  checked:false},
-  {id:'exportpkg', name:'İhracat Ambalajı (Takviyeli Kasa)',     desc:'Uzun mesafe taşımacılık için takviyeli 40\' HC ihracat kasası', usd:1000,  checked:false},
+  {id:'cold',    name:'Hat İçi Soğuk Tutkal Ünitesi',            desc:'Standart kutu tipleri için hat içi soğuk tutkal uygulaması', eur:1200,  checked:false},
+  {id:'hotmelt', name:'Hat İçi Sıcak Tutkal (Hot-Melt) Ünitesi',  desc:'Ağır karton için yüksek hızlı sıcak tutkal yapıştırma',       eur:5800,  checked:false},
+  {id:'standalone', name:'Bağımsız Tutkal Ünitesi',               desc:'Hat dışı bitirme için bağımsız tutkallama istasyonu',         eur:1200,  checked:false},
+  {id:'vibknife', name:'Hat İçi Titreşimli Bıçak (2 adet)',       desc:'Özel kutu şekilleri için kavisli / düzensiz kesim hatları',   eur:11500, checked:false},
+  {id:'flexo1',  name:'Flekso Baskı — 1. Renk (300×600mm)',      desc:'Hat içi tek renkli fleksografik baskı istasyonu',             eur:11500, checked:false},
+  {id:'flexo2',  name:'Flekso Baskı — 2. Renk (300×600mm)',      desc:'2 renkli baskı işleri için ikinci hat içi renk istasyonu',    eur:11500, checked:false},
+  {id:'ultralow', name:'Ultra Düşük Kutu Yüksekliği Ünitesi',    desc:'Çok düşük yükseklikli kutu üretimi için özel alt limit ünitesi', eur:2300, checked:false},
+  {id:'crease',  name:'Erkek ve Dişi Oluklama Başlıkları',       desc:'Ağır karton için hassas çift yüzeyli oluklama',               eur:5800,  checked:false},
+  {id:'exportpkg', name:'İhracat Ambalajı (Takviyeli Kasa)',     desc:'Uzun mesafe taşımacılık için takviyeli 40\' HC ihracat kasası', eur:1200,  checked:false},
 ];
 
-const eurOf = usd => (usd * RATE) / (1 - MARGIN);
 const fmtEUR = n => '€' + (Math.ceil(n / 100) * 100).toLocaleString('en-US');
+const fmtTRY = n => '₺' + n.toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2});
+const fmtTRY0 = n => '₺' + Math.round(n).toLocaleString('tr-TR');
+
+const INSTALLMENT_RATES = {0:0, 1:0.0320, 2:0.0572, 3:0.0770, 4:0.0947, 5:0.1134, 6:0.1322, 7:0.1509, 8:0.1696, 9:0.1884, 10:0.2071, 11:0.2258, 12:0.2446};
+
+let lastFinalEUR = 0;
 
 function renderOptions(){
   const list = document.getElementById('qItemsList');
@@ -863,7 +959,7 @@ function renderOptions(){
       <input type="checkbox" ${o.checked?'checked':''} onchange="toggleOption('${o.id}', this.checked)">
       <div class="qopt-check"></div>
       <div class="qopt-name">${o.name}</div>
-      <div class="qopt-val">${fmtEUR(eurOf(o.usd))}</div>
+      <div class="qopt-val">${fmtEUR(o.eur)}</div>
     </label>
   `).join('');
 }
@@ -884,24 +980,69 @@ function resetOptions(){
 
 function updateQuote(){
   const selected = OPTIONS.filter(o => o.checked);
-  const usdTotal = MACHINE_USD + selected.reduce((s,o)=>s+o.usd,0);
-  const baseEUR = eurOf(MACHINE_USD) + COMMISSION_EUR;
-  const installEUR = INSTALL_EUR;
-  const finalEUR = eurOf(usdTotal) + COMMISSION_EUR + INSTALL_EUR;   // Nihai teklif fiyatı (makine + tüm seçilenler + kurulum + dahil edilmiş komisyon)
+  const optionsEUR = selected.reduce((s,o)=>s+o.eur,0);
+  const finalEUR = BASE_EUR + optionsEUR + INSTALL_EUR;
 
-  document.getElementById('qBase').textContent = fmtEUR(baseEUR);
-  document.getElementById('qInstall').textContent = fmtEUR(installEUR);
+  document.getElementById('qBase').textContent = fmtEUR(BASE_EUR);
+  document.getElementById('qInstall').textContent = fmtEUR(INSTALL_EUR);
   document.getElementById('qTotal').textContent = fmtEUR(finalEUR);
 
   document.getElementById('tkPrice').textContent = fmtEUR(finalEUR);
   document.getElementById('tkCount').textContent = `${OPTIONS.length} opsiyondan ${selected.length} tanesi seçildi`;
+
+  lastFinalEUR = finalEUR;
+  updatePaymentPlan();
+}
+
+function updatePaymentPlan(){
+  const fx = parseFloat(document.getElementById('payFx').value) || 0;
+
+  let downPct = parseFloat(document.getElementById('payDownPct').value);
+  if(isNaN(downPct) || downPct < 35) downPct = 35;
+  if(downPct > 100) downPct = 100;
+  document.getElementById('payDownPct').value = downPct;
+
+  const totalEUR = lastFinalEUR;
+  const totalTRY = totalEUR * fx;
+  const downEUR = totalEUR * (downPct / 100);
+  const downTRY = downEUR * fx;
+  const remainEUR = totalEUR - downEUR;
+  const remainTRY = remainEUR * fx;
+
+  document.getElementById('payTotalEUR').textContent = fmtEUR(totalEUR);
+  document.getElementById('payTotalTRY').textContent = fmtTRY(totalTRY);
+  document.getElementById('payDownEUR').textContent = fmtEUR(downEUR);
+  document.getElementById('payDownTRY').textContent = fmtTRY(downTRY);
+  document.getElementById('payRemainEUR').textContent = fmtEUR(remainEUR);
+  document.getElementById('payRemainTRY').textContent = fmtTRY(remainTRY);
+
+  const n = parseInt(document.getElementById('payInstallCount').value, 10);
+  const rate = INSTALLMENT_RATES[n] ?? 0;
+  const cardTotalTRY = remainTRY / (1 - rate);
+
+  const cardRow = document.getElementById('payCardRow');
+  const monthlyRow = document.getElementById('payMonthlyRow');
+  const rateNote = document.getElementById('payInstallNote');
+
+  if(n === 0){
+    cardRow.style.display = 'none';
+    monthlyRow.style.display = 'none';
+    rateNote.textContent = 'Komisyonsuz — kalan tutar banka havalesi / EFT ile ödenir.';
+  } else {
+    cardRow.style.display = '';
+    monthlyRow.style.display = '';
+    rateNote.textContent = `${n} taksitli kredi kartı ödemesinde banka komisyonu tutara dahil edilmiştir.`;
+    document.getElementById('payCardTotalTRY').textContent = fmtTRY(cardTotalTRY);
+    const monthly = Math.ceil((cardTotalTRY / n) / 100) * 100;
+    document.getElementById('payMonthlyTRY').textContent = fmtTRY0(monthly);
+  }
 }
 
 renderOptions();
 updateQuote();
 
 const exportPkgOption = OPTIONS.find(o => o.id === 'exportpkg');
-document.getElementById('shipReinforcedPrice').textContent = fmtEUR(eurOf(exportPkgOption.usd));
+document.getElementById('shipReinforcedPrice').textContent = fmtEUR(exportPkgOption.eur);
 
 function sendDemoRequest(){
   const name = document.getElementById('rfName').value.trim();
